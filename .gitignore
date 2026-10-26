@@ -12,3 +12,4 @@ dist/
 day1_state.json
 day1_results.json
 .DS_Store
+*.tsbuildinfo
