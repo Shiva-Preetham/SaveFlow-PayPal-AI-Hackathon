@@ -75,9 +75,15 @@ scripts/
 
 **Cut order if behind:** failed-payment recovery → negotiation → AI insights panel → fancy UI. Never cut: core cancel flow, PayPal actions, policy guardrail, eval, video.
 
+## Day 1 sandbox results (Oct 26)
+7/8 steps passed: create plans, subscribe, suspend, activate, revise to another plan, list transactions, cancel.
+- **Sandbox accounts must be US.** With the default IN (India) Business + Personal accounts, buyer approval failed on PayPal's generic "We're sorry, things don't appear to be working" page. US Business + US Personal accounts and a REST app linked to the US Business account work. README must tell judges this.
+- **Per-subscriber price override on the same plan: NO.** `revise` with `plan_id` = current plan + `plan` override returns 422 `OVERRIDES_ON_SAME_PLAN_NOT_ALLOWED`. Discounts must be pre-created discounted plans (e.g. "Pro 30% off", $7) that the subscriber is switched to. Untested: override while revising to a *different* plan.
+- **`revise` to another plan requires buyer approval every time** (returns an approve link). After approval, `plan_id` showed the new plan immediately; when the new price is first billed is not yet confirmed.
+- **Suspend/activate need no buyer approval**, so pause is the lowest-friction offer. Discount and plan-switch offers send the subscriber to PayPal to approve, so some will drop off there.
+
 ## Open questions
-- Can one subscriber's price be lowered via `revise` with a `plan` override (step 5 of the Day 1 test)? If not: use a separate discounted plan.
-- Does `revise` require buyer approval each time, and when does the plan change take effect?
+- When is the new price first billed after a plan switch: immediately, or from the next cycle?
 - Can a failed renewal payment be simulated in sandbox? (Ask in the PayPal Discord if needed: https://discord.gg/sJ2G6DyvSK)
 
 ## Known limits to state honestly in the pitch
