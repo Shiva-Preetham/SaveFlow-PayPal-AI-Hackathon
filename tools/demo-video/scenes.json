@@ -10,9 +10,14 @@
   "speech": "Small businesses billing through PayPal Subscriptions lose subscribers with no chance to keep them. Other payment platforms offer a retention step at cancellation. PayPal doesn't. Save Flow adds one: an A I agent that stays inside the merchant's rules."
  },
  {
-  "id": "live_a",
-  "caption": "This is a real PayPal sandbox subscriber. They cancel and explain why in their own words. The agent reads their real PayPal history, and code computes which offers the merchant's policy allows. The AI picks one: a 3-month pause.",
-  "speech": "This is a real PayPal sandbox subscriber. They cancel, and explain why in their own words. The agent reads their real PayPal history, and code computes which offers the merchant's policy allows. The A I picks one: a three month pause."
+  "id": "live_a1",
+  "caption": "This is a real PayPal sandbox subscriber. They cancel and explain why in their own words.",
+  "speech": "This is a real PayPal sandbox subscriber. They cancel, and explain why in their own words."
+ },
+ {
+  "id": "live_a2",
+  "caption": "The agent reads their real PayPal history, and code computes which offers the merchant's policy allows. The AI picks one: a 3-month pause.",
+  "speech": "The agent reads their real PayPal history, and code computes which offers the merchant's policy allows. The A I picks one: a three month pause."
  },
  {
   "id": "live_b",

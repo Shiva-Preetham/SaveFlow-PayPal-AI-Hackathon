@@ -9,7 +9,7 @@ The full app is built and pushed to GitHub. It runs locally end to end. Three th
 |---|---|---|---|
 | 1 | ~~Put a real Gemini API key in `.env`~~ | Done Nov 5. Measured free-tier limit on `gemini-2.5-flash`: **5/min, 20/day**. So the agent now walks a chain of models (3.1 Flash-Lite → 2.5 Flash-Lite → 3.5 Flash-Lite → Flash-Lite latest → 2.5 Flash), each with its own quota. | ✅ |
 | 2 | ~~Deploy to Render~~ | Live at https://saveflow-ufbx.onrender.com (Nov 5). Verified: health, PayPal plans reused (no duplicates), cached + live Gemini answers. **Set `PUBLIC_URL` and `FRONTEND_ORIGIN` on Render to that URL** (check: `/api/health` shows `public_url`). | ✅ |
-| 3 | ~~Record the demo video~~ | Done Nov 5: `submission/saveflow-demo.mp4` (2:17, 1080p, captions, Windows computer voice). Recorded on the live site, including a real PayPal `suspend`. Rebuild with `tools/demo-video/`. | ✅ |
+| 3 | ~~Record the demo video~~ | Done Nov 5: `submission/saveflow-demo.mp4` (2:16, 1080p, captions). Voice: Piper neural TTS, `en_US-ljspeech-high` (public-domain training data). Recorded on the live site, including a real PayPal `suspend`. Rebuild with `tools/demo-video/`. | ✅ |
 | 4 | **Upload the video to YouTube and submit on Devpost** | Only you can do this. Follow the checklist at the top of `DEVPOST.md`. | 30 min |
 
 Remaining for you: run the live PayPal path once (below), deploy, video, submit. **Also add the Gemini key on Render** (`GEMINI_API_KEY`).
@@ -88,7 +88,7 @@ Then open http://localhost:5173 and check:
 4. Optional real webhooks: PayPal app → Webhooks → add `https://<your-url>/api/webhooks/paypal` for `BILLING.SUBSCRIPTION.*` and `PAYMENT.SALE.COMPLETED` → copy the webhook id into `PAYPAL_WEBHOOK_ID` on Render.
 
 ## Risks (honest)
-- **The video uses a computer voice** (Windows “Zira”). It's clear and captioned, but a human voice usually lands better with judges. If you have 30 minutes, record your own narration over it using the caption text in `tools/demo-video/scenes.json` (same timings); otherwise the current video is fine to submit.
+- **The video uses an AI voice** (Piper, LJ Speech, public domain; much more natural than the Windows voice, which is kept as `submission/saveflow-demo-zira-voice.mp4`). A human voice can still land better; the narration lines are in `tools/demo-video/scenes.json` if you ever want to re-voice it.
 - **The guardrail never fired in the eval**: Gemini always picked an allowed offer. That's good, but it means the eval shows the model behaving, not the guardrail. Blocking is proven by unit tests with a deliberately misbehaving model. Say this accurately in the video.
 - **LLM messages can add unrequested details**: one cancel message said access lasts “until the end of the billing period”. The message check verifies amounts only. Low risk for the demo (cached messages were reviewed); a stricter check is a possible post-submission fix.
 - **Gemini free-tier quota is tiny** (20 requests/day per model on 2.5 Flash, measured). The model chain multiplies capacity, scripted demo scenarios come from the committed cache, and anything beyond falls back to labelled rules. Don't run the eval or warm the cache on video day; it spends the daily quota. Quotas reset at midnight Pacific (1:30 PM IST).

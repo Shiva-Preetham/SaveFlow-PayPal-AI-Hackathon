@@ -1,9 +1,9 @@
 """Drive the live SaveFlow site through the demo script and record it with Playwright.
 Writes recording/*.webm and timeline.json (scene start times, seconds from video start).
 
-    pip install playwright httpx pydantic-settings && python -m playwright install ffmpeg
-    powershell -File tts.ps1 -Dir . -Rate 1      # narration clips (Windows voices)
-    python record.py                             # needs .env with the PayPal sandbox keys
+    pip install playwright httpx pydantic-settings piper-tts && python -m playwright install ffmpeg
+    python tts_piper.py <voices>/en_US-ljspeech-high.onnx 0.95   # or: powershell -File tts.ps1 -Dir .
+    python record.py                                             # needs .env with the PayPal sandbox keys
     python assemble.py ../../submission/saveflow-demo.mp4"""
 import json
 import subprocess
@@ -160,13 +160,15 @@ def main() -> None:
             page.wait_for_timeout(2500)
             show(page.locator(".ag-root-wrapper").first)
 
-        def live_a():
+        def live_a1():
             nav("Try it as a subscriber")
             click(page.locator("button", has_text="…JPUN").first)
             type_into(page.get_by_placeholder("Any language is fine"), "I'm travelling for 3 months and money's tight")
             click(btn("Continue to cancel"))
-            btn("Accept offer").wait_for(timeout=60_000)
-            page.wait_for_timeout(1500)
+            btn("Accept offer").wait_for(timeout=60_000)  # live Gemini call: the next line starts when it answers
+
+        def live_a2():
+            page.wait_for_timeout(1200)
             show(page.get_by_text("2 · What the agent read from PayPal"), "start")
             page.wait_for_timeout(2500)
             show(page.get_by_text("3 · Offers the merchant's policy allows (computed by code)"), "start")
@@ -251,7 +253,7 @@ def main() -> None:
         def end():
             page.set_content(END)
 
-        for sid, fn in [("title", title), ("workspace", workspace), ("live_a", live_a), ("live_b", live_b),
+        for sid, fn in [("title", title), ("workspace", workspace), ("live_a1", live_a1), ("live_a2", live_a2), ("live_b", live_b),
                         ("injection", injection), ("hinglish_a", hinglish_a), ("hinglish_b", hinglish_b),
                         ("policy", policy), ("simulator", simulator), ("grid", grid), ("winback", winback),
                         ("eval", eval_card), ("end", end)]:
