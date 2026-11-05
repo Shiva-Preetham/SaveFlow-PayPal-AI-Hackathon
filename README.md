@@ -8,6 +8,8 @@ When a subscriber tries to cancel, SaveFlow reads their reason (in their own wor
 
 > Everything runs against the **PayPal sandbox**. No real money moves. “Sunrise Yoga Studio” is a made-up merchant.
 
+**Demo video (2:17):** https://youtu.be/_eDtsG07IjE
+
 **Live demo:** https://saveflow-ufbx.onrender.com (Render free tier: if it has been idle, the first load takes 30–60 s while the server wakes up).
 
 ## Why

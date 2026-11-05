@@ -10,7 +10,8 @@ The full app is built and pushed to GitHub. It runs locally end to end. Three th
 | 1 | ~~Put a real Gemini API key in `.env`~~ | Done Nov 5. Measured free-tier limit on `gemini-2.5-flash`: **5/min, 20/day**. So the agent now walks a chain of models (3.1 Flash-Lite → 2.5 Flash-Lite → 3.5 Flash-Lite → Flash-Lite latest → 2.5 Flash), each with its own quota. | ✅ |
 | 2 | ~~Deploy to Render~~ | Live at https://saveflow-ufbx.onrender.com (Nov 5). Verified: health, PayPal plans reused (no duplicates), cached + live Gemini answers. **Set `PUBLIC_URL` and `FRONTEND_ORIGIN` on Render to that URL** (check: `/api/health` shows `public_url`). | ✅ |
 | 3 | ~~Record the demo video~~ | Done Nov 5: `submission/saveflow-demo.mp4` (2:16, 1080p, captions). Voice: Piper neural TTS, `en_US-ljspeech-high` (public-domain training data). Recorded on the live site, including a real PayPal `suspend`. Rebuild with `tools/demo-video/`. | ✅ |
-| 4 | **Upload the video to YouTube and submit on Devpost** | Only you can do this. Follow the checklist at the top of `DEVPOST.md`. | 30 min |
+| 4 | ~~Upload the video to YouTube~~ | Public: https://youtu.be/_eDtsG07IjE (Nov 5) | ✅ |
+| 5 | **Submit on Devpost** | Only you can do this. Steps 2–4 of the checklist at the top of `DEVPOST.md`. | 20 min |
 
 Remaining for you: run the live PayPal path once (below), deploy, video, submit. **Also add the Gemini key on Render** (`GEMINI_API_KEY`).
 

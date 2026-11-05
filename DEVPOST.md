@@ -1,11 +1,11 @@
 # Devpost submission kit
 
 ## Final checklist (the only steps that need your accounts)
-1. **YouTube:** upload `submission/saveflow-demo.mp4` with the title, description, tags and thumbnail from `submission/YOUTUBE.md` / `submission/youtube-thumbnail.png`. Visibility: **Public**. Copy the link.
+1. ~~**YouTube:**~~ Done: https://youtu.be/_eDtsG07IjE (public). Was: upload `submission/saveflow-demo.mp4` with the title, description, tags and thumbnail from `submission/YOUTUBE.md` / `submission/youtube-thumbnail.png`. Visibility: **Public**. Copy the link.
 2. **Devpost:** open the hackathon page → *Enter a submission* / *Edit submission* → paste each section below into the matching field.
    - Repo: https://github.com/Shiva-Preetham/SaveFlow-PayPal-AI-Hackathon (public, MIT license visible)
    - Live demo: https://saveflow-ufbx.onrender.com
-   - Video: your YouTube link
+   - Video: https://youtu.be/_eDtsG07IjE
    - Select the **Best Use of AG Grid** sponsor prize and the grand prize category.
 3. Open the live demo once just before submitting so it is awake, and check the README shows the sandbox buyer login.
 4. Click **Submit** (not just *Save draft*) and confirm Devpost shows the project as submitted. Deadline: **Nov 12, 12:00 PM PST = Nov 13, 1:30 AM IST**.
@@ -68,7 +68,7 @@ python, fastapi, sqlalchemy, sqlite, google-gemini, pydantic, paypal-subscriptio
 ## Links
 - Repo: https://github.com/Shiva-Preetham/SaveFlow-PayPal-AI-Hackathon
 - Live demo: https://saveflow-ufbx.onrender.com
-- Video: _YouTube URL_
+- Video: https://youtu.be/_eDtsG07IjE
 - Sandbox buyer for judges: in the README
 
 ---
