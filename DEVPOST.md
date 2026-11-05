@@ -12,6 +12,8 @@
 
 Copy each section into the Devpost form. Keep the video under 3:00.
 
+**Paste-ready versions:** the whole “About the project” story is `submission/devpost-story.md`; gallery images (3:2) are in `submission/gallery/`.
+
 ---
 
 ## Project name
