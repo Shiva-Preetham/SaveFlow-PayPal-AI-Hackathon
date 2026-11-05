@@ -1,7 +1,7 @@
 # Devpost submission kit
 
 ## Final checklist (the only steps that need your accounts)
-1. **YouTube:** upload `submission/saveflow-demo.mp4` (or your own recording). Title: *SaveFlow: the save-the-subscriber layer for PayPal Subscriptions*. Visibility: **Public** or **Unlisted** (both work for Devpost). Copy the link.
+1. **YouTube:** upload `submission/saveflow-demo.mp4` with the title, description, tags and thumbnail from `submission/YOUTUBE.md` / `submission/youtube-thumbnail.png`. Visibility: **Public**. Copy the link.
 2. **Devpost:** open the hackathon page → *Enter a submission* / *Edit submission* → paste each section below into the matching field.
    - Repo: https://github.com/Shiva-Preetham/SaveFlow-PayPal-AI-Hackathon (public, MIT license visible)
    - Live demo: https://saveflow-ufbx.onrender.com

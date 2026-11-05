@@ -1,5 +1,7 @@
 # SaveFlow
 
+![SaveFlow: an AI agent that saves cancelling PayPal subscribers](submission/youtube-thumbnail.png)
+
 **The save-the-subscriber layer PayPal Subscriptions is missing.**
 
 When a subscriber tries to cancel, SaveFlow reads their reason (in their own words, any language) and their PayPal history, and makes the best offer the merchant allows: a pause, a discount, or a cheaper plan. It then executes it in PayPal. Merchants write their retention rules in plain English and can test a new policy on past cancellations before turning it on.
