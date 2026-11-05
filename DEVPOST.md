@@ -17,8 +17,10 @@ Copy each section into the Devpost form. Keep the video under 3:00.
 ## Project name
 SaveFlow
 
-## Tagline (≤ 200 chars)
-The save-the-subscriber layer PayPal Subscriptions is missing: an AI agent that reads why someone is cancelling and their PayPal history, then makes the best offer the merchant allows, executed in PayPal.
+## Elevator pitch / tagline (192 of 200 chars)
+An AI agent that saves cancelling PayPal subscribers: it reads their reason and PayPal history, offers a pause, discount or cheaper plan within the merchant's rules, and executes it in PayPal.
+
+Thumbnail: `submission/devpost-thumbnail.png` (1200×800, 3:2).
 
 ## Prize categories to select
 - Best Use of AG Grid (sponsor prize)
