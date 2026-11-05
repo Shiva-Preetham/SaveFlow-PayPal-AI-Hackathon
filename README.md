@@ -24,7 +24,7 @@ Stripe offers retention flows at cancellation; PayPal Subscriptions does not, an
 
 ## Try it (hosted demo)
 1. **Try it as a subscriber** → pick *Maya* → send the suggested reason → accept the pause. The right panel shows the agent's work.
-2. Pick *Tom* and try the prompt injection; pick *Ben*, then ask “Can you do 50%?” The counter-offer is capped at the policy limit.
+2. Pick *Tom* and try the prompt injection; pick *Arjun* (Hinglish), then ask “Can you do 50%?” The counter-offer is capped at the policy limit.
 3. To use **real PayPal calls**: in the same page click the PayPal **Subscribe** button and log in with the sandbox buyer below. Then cancel that subscriber through SaveFlow; the pause is a real `suspend` in the sandbox.
 4. **Policy** → *Try an example* → *Compile with AI* → note the unsupported-rule warning → *Test on past cancellations first*.
 5. **Win-backs** → send a CANCELLED webhook, then re-send the same event to see duplicate handling.
@@ -56,10 +56,12 @@ Open http://localhost:5173. On start the backend re-seeds demo data and finds-or
 ## Tests and eval
 ```bash
 cd backend
-.venv/Scripts/python -m pytest                      # 34 unit + API tests, offline
+.venv/Scripts/python -m pytest                      # 35 unit + API tests, offline
 .venv/Scripts/python -m tests.eval.run_eval         # 50-case agent eval (needs GEMINI_API_KEY)
 ```
-The eval has 40 normal reasons (English, Hinglish, Spanish, sarcasm) and 10 adversarial ones (prompt injection, fake system messages, threats). It reports reason accuracy, offer fit, how often the LLM proposed something outside the policy (blocked by code), and **final policy violations**, which must be 0. Results: [`backend/tests/eval/RESULTS.md`](backend/tests/eval/RESULTS.md); keyword-only baseline: [`BASELINE_keyword_fallback.md`](backend/tests/eval/BASELINE_keyword_fallback.md).
+The eval has 40 normal reasons (English, Hinglish, Spanish, sarcasm) and 10 adversarial ones (prompt injection, fake system messages, threats). It reports reason accuracy, offer fit, how often the LLM proposed something outside the policy (blocked by code), and **final policy violations**, which must be 0.
+
+**Latest run (Nov 5, all 50 answered by Gemini):** 0 final policy violations · 92% reason accuracy (37/40; the misses are genuinely ambiguous: “Personal reasons”, “Just don't want it anymore”, sarcasm) · 50/50 offers fit the reason · 10/10 injections flagged, 0 false flags. The model never proposed an out-of-policy offer in this run, so the guardrail did not have to block anything here; the blocking path is covered by unit tests with a model that misbehaves on purpose. Results: [`backend/tests/eval/RESULTS.md`](backend/tests/eval/RESULTS.md); keyword-only baseline: [`BASELINE_keyword_fallback.md`](backend/tests/eval/BASELINE_keyword_fallback.md).
 
 ## How it's built
 ```
@@ -76,7 +78,8 @@ SQLite (re-seeded on start)        PayPal Sandbox: Catalog, Plans, Subscriptions
 ```
 - **Discounts are separate PayPal plans** with a discounted trial phase (e.g. 30% off for 2 cycles, then the regular price), because PayPal rejects a price override on the subscriber's current plan (`OVERRIDES_ON_SAME_PLAN_NOT_ALLOWED`, found in our Day 1 sandbox test).
 - **Subscription state machine** (ACTIVE / PAUSE_SCHEDULED / SUSPENDED / CANCELLED) with valid transitions only; PayPal is the source of truth and webhooks reconcile by re-reading the subscription.
-- **Gemini answers are cached** (DB + a committed demo cache for the scripted scenarios) so the demo survives free-tier rate limits.
+- **Gemini answers are cached** (DB + a committed demo cache for the scripted scenarios) so the demo survives free-tier rate limits. Free-tier quotas are per model and small (measured on our key: `gemini-2.5-flash` = 5 requests/min and 20/day), so the agent walks a chain of Gemini Flash-Lite models (`GEMINI_MODEL`, then `GEMINI_FALLBACK_MODELS`), skipping any that is rate-limited or overloaded until its quota resets. Thinking is off for speed (2–5 s per decision). If every model is unavailable, the agent falls back to a labelled rule-based default and the guardrail still applies; the audit log records which model answered.
+- **PayPal Agent Toolkit:** its published subscription tools cover show and cancel but not suspend/activate, which pausing needs, so SaveFlow calls the Subscriptions REST API directly through one small client for every action.
 
 ## Honest limits
 - Subscribers can cancel inside PayPal and skip the save page; SaveFlow can then only try to win them back.

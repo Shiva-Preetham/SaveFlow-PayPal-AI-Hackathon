@@ -18,10 +18,9 @@ from app.agent.decider import decide  # noqa: E402
 from app.config import get_settings  # noqa: E402
 from app.db import Base, SessionLocal, engine  # noqa: E402
 from app.models import Subscriber  # noqa: E402
-from app.policy.engine import SubscriberContext  # noqa: E402
 from app.policy.rules import DEFAULT_RULES, DEFAULT_SOURCE, PolicyRules  # noqa: E402
 from app.services import catalogue as cat  # noqa: E402
-from app.services.retention import read_history  # noqa: E402
+from app.services.retention import read_history, win_back_inputs  # noqa: E402
 from app.services.seed import seed  # noqa: E402
 from app.services.webhooks import WIN_BACK_REASON  # noqa: E402
 
@@ -45,20 +44,19 @@ def main() -> None:
             if reason:
                 d = decide(reason.group(1).strip(), ctx, catalogue, DEFAULT_RULES, None, extra)
                 print(f"{sub.name:16} {d.ai_source:7} {d.category:10} -> {d.action.id}")
-                time.sleep(5)
-            win_ctx = SubscriberContext(**{**ctx.__dict__, "state": "ACTIVE"})
-            no_pause = DEFAULT_RULES.model_copy(update={"pause_enabled": False})
-            d = decide(WIN_BACK_REASON, win_ctx, catalogue, no_pause, None, extra)
+                if d.ai_source == "gemini":
+                    time.sleep(5)
+            win_ctx, no_pause, win_extra = win_back_inputs(ctx, DEFAULT_RULES, extra)
+            d = decide(WIN_BACK_REASON, win_ctx, catalogue, no_pause, None, win_extra)
             print(f"{sub.name:16} win-back -> {d.action.id}")
             time.sleep(5)
         for text in (DEFAULT_SOURCE, POLICY_EXAMPLE):
             r = compile_policy(text, PolicyRules.model_validate(DEFAULT_RULES.model_dump()), catalogue)
             print("compile", r.ok, r.ai_source, r.warnings)
             time.sleep(5)
-    merged = {**(json.loads(llm.DEMO_CACHE_FILE.read_text("utf-8")) if llm.DEMO_CACHE_FILE.exists() else {}),
-              **llm.capture}
-    llm.DEMO_CACHE_FILE.write_text(json.dumps(merged, indent=1, ensure_ascii=False), "utf-8")
-    print(f"Wrote {len(llm.capture)} new answers ({len(merged)} total) to {llm.DEMO_CACHE_FILE}")
+    # Keep exactly the answers this run used (reused or fresh), so prompts that changed drop out.
+    llm.DEMO_CACHE_FILE.write_text(json.dumps(llm.capture, indent=1, ensure_ascii=False), "utf-8")
+    print(f"Wrote {len(llm.capture)} answers to {llm.DEMO_CACHE_FILE}")
 
 
 if __name__ == "__main__":

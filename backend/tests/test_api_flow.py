@@ -92,3 +92,26 @@ def test_state_machine():
     assert sub.state == S.SUSPENDED
     assert reconcile(sub, "CANCELLED") and sub.state == S.CANCELLED  # PayPal wins, even out of order
     assert not reconcile(sub, "UNKNOWN_STATUS")
+
+
+def test_paypal_failure_is_recorded_with_debug_id(client, monkeypatch):
+    from app.paypal import subscriptions as pp_subs
+    from app.paypal.client import PayPalError
+    from app.services import retention
+
+    maya = persona(client, "Maya")
+    a = client.post("/api/cancel", json={"subscriber_id": maya["id"], "reason": "travelling for 3 months"}).json()
+
+    def boom(*args, record=None, **kw):
+        record.append({"method": "POST", "path": "/suspend", "status": 422, "debug_id": "dbg-123"})
+        raise PayPalError(422, "UNPROCESSABLE_ENTITY", "nope", [{"issue": "SUBSCRIPTION_STATUS_INVALID"}], "dbg-123")
+    monkeypatch.setattr(retention, "_live", lambda sub: True)
+    monkeypatch.setattr(retention.cat, "paypal", lambda: object())
+    monkeypatch.setattr(pp_subs, "suspend", boom)
+    r = client.post(f"/api/attempts/{a['id']}/accept")
+    assert r.status_code == 502 and r.json()["debug_id"] == "dbg-123" and "Traceback" not in r.text
+    monkeypatch.undo()
+    detail = client.get(f"/api/attempts/{a['id']}").json()
+    assert detail["outcome"] == "offered" and detail["paypal_calls"][-1]["debug_id"] == "dbg-123"
+    assert any(e["action"] == "paypal_call_failed" for e in detail["audit"])
+    assert persona(client, "Maya")["state"] == "ACTIVE"

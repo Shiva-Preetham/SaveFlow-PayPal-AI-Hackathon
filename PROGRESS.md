@@ -7,11 +7,11 @@ The full app is built and pushed to GitHub. It runs locally end to end. Three th
 
 | # | What | Why it matters | Time |
 |---|---|---|---|
-| 1 | Put a real **Gemini API key** in `.env` (https://aistudio.google.com/apikey, free) | `.env` still has the placeholder, so the AI parts run on the labelled keyword fallback. The eval, the policy compiler and the video need the real model. | 5 min |
+| 1 | ~~Put a real Gemini API key in `.env`~~ | Done Nov 5. Measured free-tier limit on `gemini-2.5-flash`: **5/min, 20/day**. So the agent now walks a chain of models (3.1 Flash-Lite → 2.5 Flash-Lite → 3.5 Flash-Lite → Flash-Lite latest → 2.5 Flash), each with its own quota. | ✅ |
 | 2 | **Deploy to Render** and add the URL to the README | Judges use the hosted URL. | 20 min |
 | 3 | **Record the < 3 min video**, upload to YouTube, submit on Devpost | Required. Script and submission text are in `DEVPOST.md`. | 1 evening |
 
-After step 1, tell Claude: “key is in, run the eval and warm the cache”. That runs the 50-case eval with Gemini, writes `backend/tests/eval/RESULTS.md`, records the demo cache, and commits both.
+Remaining for you: run the live PayPal path once (below), deploy, video, submit. **Also add the Gemini key on Render** (`GEMINI_API_KEY`).
 
 ## What is built (and how it was verified)
 Legend: ✅ verified by tests or by running it · 🟡 built, needs your sandbox login or key to verify · ⬜ not built
@@ -21,13 +21,13 @@ Legend: ✅ verified by tests or by running it · 🟡 built, needs your sandbox
 | Policy engine: allowed offers per subscriber (tenure, one offer per customer, category rules, discount cap) | ✅ | `tests/test_policy_engine.py` (9 tests) |
 | Guardrail: LLM pick outside the allowed set → blocked → safe default; message promising another amount → rewritten | ✅ | `tests/test_agent.py` with a fake LLM; seeded “Blocked” rows in the workspace |
 | Prompt-injection flag (model flag + code regex) | ✅ | tests; Tom persona in *Try it* |
-| Gemini decision agent (structured output, reads PayPal history, writes message in subscriber's language) | 🟡 | Code done; needs key. Without a key it falls back and says so. |
-| Plain-English policy compiler + code-written summary + diff + “not enforced” warnings | 🟡 | Validation tested with a fake LLM; real compile needs key |
+| Gemini decision agent (structured output, reads PayPal history, writes message in subscriber's language) | ✅ | Real Gemini: Maya → pause_3 citing 14 months; Arjun (Hinglish) → 30% off; Tom (injection) flagged. 503 overload fell back to rules, as designed. |
+| Plain-English policy compiler + code-written summary + diff + “not enforced” warnings | ✅ | Real Gemini compiled the example correctly (20% max, pause 2 mo after 3 paid, no offer for app problems) and flagged “free month for Jane” as not enforced |
 | Inline policy editing in AG Grid → server validation → diff → apply as new version | ✅ | Clicked through in the browser (max discount 30 → 20 showed “Apply 1 change”) |
 | What-if simulator (AG Grid, changed rows highlighted, totals row) | ✅ | Browser: 32 of 73 offers change under “max 20%, no offer for product problems” |
 | Cancel flow (subscriber view + “behind the scenes” merchant panel) | ✅ | Browser: Maya → pause offer → accepted → saved, $90 / 12 mo |
 | Counter-offer (one, capped at the policy limit) | ✅ | API test: “Can you do 50%?” → 30% with note; 2nd counter → 409 |
-| PayPal client: OAuth cache, idempotency key on every call, timeout, debug_id in errors | ✅ | `tests/test_paypal_client.py` |
+| PayPal client: OAuth cache, idempotency key on every call, timeout, debug_id in errors | ✅ | `tests/test_paypal_client.py`; a failed live call is kept on the attempt + audit log (`test_paypal_failure_is_recorded_with_debug_id`) |
 | PayPal catalogue: product + Pro, 20%/30%/50% discount plans (trial cycles), Lite; find-or-create (no duplicates) | ✅ | Ran twice against your sandbox: same 5 plan ids both times |
 | PayPal Subscribe button (JS SDK) on *Try it* | ✅ renders | Seen in the browser with your sandbox plan |
 | Live path: subscribe with sandbox buyer → cancel via SaveFlow → real `suspend` / `revise` popup / `cancel` | 🟡 | Needs you to log in as the US sandbox buyer once (see “Verify the live PayPal path”) |
@@ -37,7 +37,8 @@ Legend: ✅ verified by tests or by running it · 🟡 built, needs your sandbox
 | Audit log (AG Grid) | ✅ | Browser |
 | Waking-up screen for Render cold starts | ✅ | Shown while `/api/health` is unreachable |
 | Demo data: 72 seeded attempts, ~14% save rate, labelled | ✅ | Workspace banner |
-| 50-case eval (40 normal incl. Hinglish/Spanish/sarcasm, 10 adversarial) | 🟡 | Keyword baseline done: **0 violations**, 70% category accuracy. Gemini run needs key. |
+| Demo cache: Gemini answers for the 6 scripted personas, their win-backs and 2 policy compiles | ✅ | Served in 0.0–0.1 s with no quota used; regenerate with `python -m app.agent.warm_cache` only if prompts change |
+| 50-case eval (40 normal incl. Hinglish/Spanish/sarcasm, 10 adversarial) | ✅ | All 50 by Gemini: **0 violations**, 92% category accuracy, 50/50 offer fit, 10/10 injections flagged, 0 false flags (`backend/tests/eval/RESULTS.md`). Keyword baseline: 70%. |
 | Dockerfile + `render.yaml` (one service serves API + built frontend) | 🟡 | Not test-built: Docker isn't installed on this PC. `npm run build` and serving `frontend/dist` from FastAPI were verified locally. |
 | Learning loop (Thompson sampling) | ⬜ | Stretch, cut per plan. |
 | Failed-payment recovery | ⬜ | Cut per plan. |
@@ -45,7 +46,7 @@ Legend: ✅ verified by tests or by running it · 🟡 built, needs your sandbox
 ## Verify it yourself (10 minutes)
 ```bash
 cd backend
-.venv/Scripts/python -m pytest -q                 # expect: 34 passed
+.venv/Scripts/python -m pytest -q                 # expect: 35 passed
 ```
 Run the app (two terminals, from the repo root):
 ```bash
@@ -57,7 +58,7 @@ npm --prefix frontend run dev
 Then open http://localhost:5173 and check:
 1. **Workspace**: KPIs, “Why subscribers leave”, the grid. Click a row → drawer shows steps 1–6.
 2. **Try it** → Maya → *Continue to cancel* → *Accept offer* → “Done … $90 kept”.
-3. **Try it** → Ben → reason → in the box type `Can you do 50%?` → *Ask* → offer stays at 30% with a note.
+3. **Try it** → Arjun → reason → in the box type `Can you do 50%?` → *Ask* → offer stays at 30% with a note.
 4. **Policy** → change “Largest discount” in the grid → *Apply* → version goes up.
 5. **What-if simulator** → toggle rules in the left grid → right grid updates.
 6. **Win-backs** → pick Priya → *Send CANCELLED webhook* → then *Re-send the same event* → “duplicate delivery ignored”.
@@ -86,7 +87,9 @@ Then open http://localhost:5173 and check:
 4. Optional real webhooks: PayPal app → Webhooks → add `https://<your-url>/api/webhooks/paypal` for `BILLING.SUBSCRIPTION.*` and `PAYMENT.SALE.COMPLETED` → copy the webhook id into `PAYPAL_WEBHOOK_ID` on Render.
 
 ## Risks (honest)
-- **No Gemini key yet** is the biggest risk: without it the “AI” is a keyword fallback. Fix today.
+- **The guardrail never fired in the eval**: Gemini always picked an allowed offer. That's good, but it means the eval shows the model behaving, not the guardrail. Blocking is proven by unit tests with a deliberately misbehaving model. Say this accurately in the video.
+- **LLM messages can add unrequested details**: one cancel message said access lasts “until the end of the billing period”. The message check verifies amounts only. Low risk for the demo (cached messages were reviewed); a stricter check is a possible post-submission fix.
+- **Gemini free-tier quota is tiny** (20 requests/day per model on 2.5 Flash, measured). The model chain multiplies capacity, scripted demo scenarios come from the committed cache, and anything beyond falls back to labelled rules. Don't run the eval or warm the cache on video day; it spends the daily quota. Quotas reset at midnight Pacific (1:30 PM IST).
 - **Render free tier** sleeps; first load 30–60 s. The waking screen handles it; mention it in the README (done).
 - **Gemini free-tier limits during judging** (Dec 1–15): the scripted scenarios are cached after `warm_cache`; anything a judge types still calls Gemini live and falls back (labelled) if rate-limited.
 - **Live demo depends on judges logging into the sandbox**: most won't. The simulated personas cover the story; the video must show the live PayPal path.

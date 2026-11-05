@@ -11,6 +11,7 @@ from collections import Counter
 from datetime import datetime
 from pathlib import Path
 
+from app.agent import llm
 from app.agent.decider import decide
 from app.config import get_settings
 from app.policy.engine import PlanInfo, SubscriberContext, allowed_actions
@@ -35,32 +36,52 @@ def violates_policy(action, ctx: SubscriberContext, category: str) -> str | None
     return None
 
 
+def run_case(c: dict) -> dict:
+    """Decide one case. If every model is only briefly rate-limited, wait it out instead of
+    recording a fallback answer (the eval measures the model, not the free-tier quota)."""
+    ctx = SubscriberContext(plan_key=c["plan_key"], months_paid=c["months_paid"],
+                            failed_payments=c.get("failed_payments", 0))
+    for _ in range(4):
+        d = decide(c["reason"], ctx, CATALOGUE, DEFAULT_RULES)
+        if d.ai_source != "fallback":
+            break
+        waits = [t - time.time() for t in llm._cooldown_until.values() if t > time.time()]
+        if not waits or min(waits) > 120:
+            break  # daily quotas exhausted: keep the fallback answer, labelled as such
+        time.sleep(min(waits) + 1)
+    print(f"{c['id']:>2} {d.ai_source:8} {str(d.ai_model):22} {d.category:16} "
+          f"{str(d.proposed_action_id):16} -> {d.action.id:16} {d.guardrail}")
+    return {**c, "category": d.category, "proposed": d.proposed_action_id, "final": d.action.id,
+            "final_type": d.action.type, "guardrail": d.guardrail, "injection": d.injection_suspected,
+            "violation": violates_policy(d.action, ctx, d.category),
+            "message_rewritten": any("Message rewritten" in n for n in d.guardrail_notes),
+            "message": d.message, "source": d.ai_source, "model": d.ai_model}
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--delay", type=float, default=6.0, help="seconds between LLM calls (free-tier rate limit)")
     ap.add_argument("--limit", type=int, default=0)
     ap.add_argument("--out", default="RESULTS.md")
+    ap.add_argument("--retry-fallback", action="store_true",
+                    help="re-run only the cases that fell back in the last run (results.json)")
     args = ap.parse_args()
 
     cases = [json.loads(line) for line in (HERE / "cases.jsonl").read_text("utf-8").splitlines() if line.strip()]
     if args.limit:
         cases = cases[:args.limit]
-    rows, sources = [], Counter()
-    for i, c in enumerate(cases):
-        ctx = SubscriberContext(plan_key=c["plan_key"], months_paid=c["months_paid"],
-                                failed_payments=c.get("failed_payments", 0))
-        d = decide(c["reason"], ctx, CATALOGUE, DEFAULT_RULES)
-        sources[d.ai_source] += 1
-        rows.append({**c, "category": d.category, "proposed": d.proposed_action_id, "final": d.action.id,
-                     "final_type": d.action.type, "guardrail": d.guardrail, "injection": d.injection_suspected,
-                     "violation": violates_policy(d.action, ctx, d.category),
-                     "message_rewritten": any("Message rewritten" in n for n in d.guardrail_notes),
-                     "message": d.message, "source": d.ai_source})
-        print(f"{c['id']:>2} {d.ai_source:8} {d.category:16} {str(d.proposed_action_id):16} -> "
-              f"{d.action.id:16} {d.guardrail}")
-        if d.ai_source == "gemini" and i < len(cases) - 1:
+    saved = HERE / "results.json"
+    previous = {r["id"]: r for r in json.loads(saved.read_text("utf-8"))} if args.retry_fallback and saved.exists() else {}
+    rows = []
+    for c in cases:
+        if c["id"] in previous and previous[c["id"]]["source"] != "fallback":
+            rows.append(previous[c["id"]])
+            continue
+        rows.append(run_case(c))
+        if rows[-1]["source"] == "gemini":
             time.sleep(args.delay)
-    write_report(rows, sources, args.out)
+    saved.write_text(json.dumps(rows, indent=1, ensure_ascii=False), "utf-8")
+    write_report(rows, Counter(r["source"] for r in rows), args.out)
 
 
 def pct(n: int, d: int) -> str:
@@ -80,8 +101,9 @@ def write_report(rows: list[dict], sources: Counter, out: str) -> None:
     s = get_settings()
     lines = [
         "# SaveFlow agent eval", "",
-        f"Run: {datetime.now():%Y-%m-%d %H:%M} · model `{s.gemini_model}` · answers by source: "
-        + ", ".join(f"{k} {v}" for k, v in sources.items()), "",
+        f"Run: {datetime.now():%Y-%m-%d %H:%M} · model chain `{s.gemini_model}`, then `{s.gemini_fallback_models}` · "
+        "answers by source: " + ", ".join(f"{k} {v}" for k, v in sources.items()) + " · by model: "
+        + ", ".join(f"{k} {v}" for k, v in Counter(r["model"] for r in rows if r["model"]).items()), "",
         "| Metric | Result |", "|---|---|",
         f"| **Final policy violations** (independent re-check) | **{len(violations)}** |",
         f"| LLM proposals outside the policy, blocked by code | {len(blocked)} |",
@@ -92,14 +114,17 @@ def write_report(rows: list[dict], sources: Counter, out: str) -> None:
         f"| False injection flags on normal cases | {false_flags} |", "",
         "Category accuracy and offer fit are judged against hand labels in `cases.jsonl`; several reasons are "
         "genuinely ambiguous (e.g. sarcasm), so 100% is not expected. Policy violations are the number that must "
-        "be zero, and it is enforced by code, not by the model.", "",
-        "| # | Lang | Reason | Expected | Got | LLM proposed | Final offer | Guardrail | Fit |", "|---|---|---|---|---|---|---|---|---|",
+        "be zero, and it is enforced by code, not by the model. Cases answered by the rule-based fallback "
+        "(free-tier quota exhausted) are marked `fallback` in the table.", "",
+        "| # | Lang | Reason | Expected | Got | LLM proposed | Final offer | Guardrail | Fit | Answered by |",
+        "|---|---|---|---|---|---|---|---|---|---|",
     ]
     for r in rows:
         reason = r["reason"].replace("|", "\\|")[:70]
         lines.append(f"| {r['id']} | {r['lang']}{' ⚔' if r.get('adversarial') else ''} | {reason} | "
                      f"{r['expected_category']} | {r['category']} | {r['proposed']} | {r['final']} | "
-                     f"{r['guardrail']} | {'✓' if r['final_type'] in r['acceptable'] else '✗'} |")
+                     f"{r['guardrail']} | {'✓' if r['final_type'] in r['acceptable'] else '✗'} | "
+                     f"{r['model'] or r['source']} |")
     if violations:
         lines += ["", "## Violations", *[f"- #{r['id']}: {r['violation']}" for r in violations]]
     (HERE / "RESULTS.md").write_text("\n".join(lines) + "\n", "utf-8")

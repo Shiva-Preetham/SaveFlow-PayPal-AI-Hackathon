@@ -11,6 +11,7 @@ from app.agent.decider import decide, template_message
 from app.config import get_settings
 from app.models import AuditLog, CancelAttempt, Policy, Subscriber, SubscriptionState as S, utcnow
 from app.paypal import subscriptions as pp_subs
+from app.paypal.client import PayPalError
 from app.policy.engine import CANCEL, Action, SubscriberContext
 from app.policy.rules import PolicyRules
 from app.services import catalogue as cat
@@ -74,6 +75,16 @@ def _aware(dt: datetime) -> datetime:
     return dt if dt.tzinfo else dt.replace(tzinfo=timezone.utc)
 
 
+WIN_BACK_SITUATION = ("Already cancelled inside PayPal. Any offer means resubscribing; choose the come-back "
+                      "offer most likely to bring them back, and 'cancel' (no offer) only if none fits.")
+
+
+def win_back_inputs(ctx: SubscriberContext, rules: PolicyRules, extra: dict) -> tuple[SubscriberContext, PolicyRules, dict]:
+    """Win-back offers are for coming back: evaluate as if active, never offer a pause, and tell the agent."""
+    return (SubscriberContext(**{**ctx.__dict__, "state": "ACTIVE"}),
+            rules.model_copy(update={"pause_enabled": False}), {**extra, "situation": WIN_BACK_SITUATION})
+
+
 def start_attempt(db: Session, sub: Subscriber, reason: str, channel: str = "save_page") -> CancelAttempt:
     if sub.state == S.CANCELLED and channel == "save_page":
         raise RetentionError("This subscription is already cancelled")
@@ -81,14 +92,14 @@ def start_attempt(db: Session, sub: Subscriber, reason: str, channel: str = "sav
     rules = PolicyRules.model_validate(policy.rules)
     calls: list = []
     ctx, extra = read_history(db, sub, calls)
-    if channel == "win_back":  # offers are for coming back, so evaluate as if active and never offer a pause
-        ctx = SubscriberContext(**{**ctx.__dict__, "state": "ACTIVE"})
-        rules = rules.model_copy(update={"pause_enabled": False})
+    if channel == "win_back":
+        ctx, rules, extra = win_back_inputs(ctx, rules, extra)
     decision = decide(reason, ctx, cat.catalogue(db), rules, db, extra)
 
     attempt = CancelAttempt(
         subscriber_id=sub.id, channel=channel, reason_text=reason, category=decision.category,
-        reason_summary=decision.reason_summary, context={**ctx.__dict__, **extra},
+        reason_summary=decision.reason_summary,
+        context={**ctx.__dict__, **extra, **({"ai_model": decision.ai_model} if decision.ai_model else {})},
         allowed_actions=[a.to_dict() for a in decision.allowed], proposed_action_id=decision.proposed_action_id,
         action=decision.action.to_dict(), guardrail=decision.guardrail,
         guardrail_note=" ".join(decision.guardrail_notes) or None, injection_suspected=decision.injection_suspected,
@@ -101,6 +112,7 @@ def start_attempt(db: Session, sub: Subscriber, reason: str, channel: str = "sav
     db.flush()
     audit(db, "agent_decision", {
         "reason": reason, "category": decision.category, "ai_source": decision.ai_source,
+        "ai_model": decision.ai_model,
         "allowed": [a.id for a in decision.allowed], "proposed": decision.proposed_action_id,
         "final": decision.action.id, "guardrail": decision.guardrail, "notes": decision.guardrail_notes,
         "paypal_calls": calls}, sub.id, attempt.id)
@@ -112,10 +124,30 @@ def _action(attempt: CancelAttempt) -> Action:
     return Action(**attempt.action)
 
 
-def accept(db: Session, attempt: CancelAttempt) -> CancelAttempt:
+def _recording_failures(step: str):
+    """Run a step that calls PayPal; if PayPal fails, keep the failed call (with its debug_id) on the
+    attempt and in the audit log before the error goes back to the user."""
+    def wrap(fn):
+        def run(db: Session, attempt: CancelAttempt) -> CancelAttempt:
+            calls = list(attempt.paypal_calls)
+            try:
+                return fn(db, attempt, calls)
+            except PayPalError as e:
+                db.rollback()
+                attempt.paypal_calls = calls
+                audit(db, "paypal_call_failed", {"step": step, "error": e.name, "debug_id": e.debug_id,
+                                                 "paypal_calls": calls[-1:]}, attempt.subscriber_id, attempt.id)
+                db.commit()
+                raise
+        return run
+    return wrap
+
+
+@_recording_failures("accept")
+def accept(db: Session, attempt: CancelAttempt, calls: list) -> CancelAttempt:
     if attempt.outcome not in ("offered",):
         raise RetentionError(f"Offer is already {attempt.outcome}")
-    sub, action, calls = attempt.subscriber, _action(attempt), list(attempt.paypal_calls)
+    sub, action = attempt.subscriber, _action(attempt)
     before, settings = len(calls), get_settings()
     key = f"saveflow-attempt-{attempt.id}-{action.id}"
 
@@ -160,7 +192,7 @@ def accept(db: Session, attempt: CancelAttempt) -> CancelAttempt:
             sub.plan_key = target.key
             _saved(attempt, action)
     else:
-        return decline(db, attempt)
+        return _decline(db, attempt, calls)
 
     attempt.paypal_calls = calls
     audit(db, "offer_accepted", {"action": action.id, "outcome": attempt.outcome, "paypal_calls": calls[before:]},
@@ -200,11 +232,11 @@ def confirm_approval(db: Session, attempt: CancelAttempt) -> CancelAttempt:
     return attempt
 
 
-def decline(db: Session, attempt: CancelAttempt) -> CancelAttempt:
+def _decline(db: Session, attempt: CancelAttempt, calls: list) -> CancelAttempt:
     """The subscriber says no: cancel for real. Cancelling is always allowed."""
     if attempt.outcome in ("saved", "cancelled"):
         raise RetentionError(f"Offer is already {attempt.outcome}")
-    sub, calls = attempt.subscriber, list(attempt.paypal_calls)
+    sub = attempt.subscriber
     if attempt.channel == "save_page" and sub.state != S.CANCELLED:
         if _live(sub):
             pp_subs.cancel(cat.paypal(), sub.paypal_subscription_id, "Cancelled by subscriber via SaveFlow",
@@ -219,6 +251,8 @@ def decline(db: Session, attempt: CancelAttempt) -> CancelAttempt:
     db.commit()
     return attempt
 
+
+decline = _recording_failures("decline")(_decline)
 
 _PCT = re.compile(r"(\d{1,3})\s*(%|percent|per cent)", re.I)
 _MONTHS = re.compile(r"(\d{1,2})\s*(months?|mahine|meses)", re.I)

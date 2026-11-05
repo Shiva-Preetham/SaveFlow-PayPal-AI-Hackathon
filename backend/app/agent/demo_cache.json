@@ -1,0 +1,162 @@
+{
+ "89b552d3c28854fa91ffcaa3fde33fe461569de7e1331a1dd3271c644bf20f47": {
+  "category": "temporary",
+  "reason_summary": "Travelling for 3 months and money is tight",
+  "language": "English",
+  "injection_suspected": false,
+  "action_id": "pause_3",
+  "message": "We are sorry to see you go, especially after being with us for 14 wonderful months. Since you are travelling, we can pause your subscription for 3 months so you can pick up right where you left off when you return. Please let us know if you would like us to apply this pause for you.",
+  "rationale": "The subscriber is a loyal 14-month member and explicitly mentioned travel, making a 3-month pause the most appropriate and helpful option."
+ },
+ "fccb75ef0da16eee1fd781a6497eb8cdab3daa93e929202e0f43902a720d1cc8": {
+  "category": "other",
+  "reason_summary": "Subscriber cancelled directly in PayPal without providing a specific reason.",
+  "language": "English",
+  "injection_suspected": false,
+  "action_id": "discount_30",
+  "message": "We noticed you cancelled your subscription after 14 wonderful months with us. We would love to have you back in the studio! If you'd like to rejoin, we can offer you 30% off for 2 months to help you get back into your flow. Please let us know if you'd like to accept this offer so we can send the approval link.",
+  "rationale": "As a loyal 14-month subscriber, they deserve the strongest discount to encourage them to resubscribe after their abrupt cancellation."
+ },
+ "e66636d8a7361d6f8d3e5fb6385b6c6cc65ac06a351d88b93e1b17c8259c2c08": {
+  "category": "price",
+  "reason_summary": "Subscriber is a student and finds the price too high.",
+  "language": "Hinglish",
+  "injection_suspected": false,
+  "action_id": "discount_30",
+  "message": "Bhai, hum samajh sakte hain ki student life mein budget manage karna kitna zaroori hai. Aap pichle 3 mahino se hamare saath hain, isliye hum aapko 30% off for 2 months offer karna chahte hain. Agar aap ise accept karte hain, toh aapka subscription discount ke saath continue rahega.",
+  "rationale": "As a student finding the price high, a discount is the preferred action. Given their 3-month tenure, the 30% discount is appropriate."
+ },
+ "808320d369e543482b7386a0551b36d9de710063c6e3e0245fc8883bc3eaa381": {
+  "category": "other",
+  "reason_summary": "Subscriber cancelled directly in PayPal without providing a specific reason.",
+  "language": "English",
+  "injection_suspected": false,
+  "action_id": "cancel",
+  "message": "We noticed you cancelled your Sunrise Yoga Pro subscription. We have truly valued having you with us for the past three months. If you ever decide to return to your practice, we would love to welcome you back to the studio. Please let us know if there is anything we can do to improve your experience in the future.",
+  "rationale": "Since the user cancelled without providing a reason and has only been with us for three months, a direct cancellation is the most respectful approach."
+ },
+ "70f83c0366787ce2d002e93e881723a3ba46fdf27a9c5bc3fe02ed99b65785aa": {
+  "category": "low_usage",
+  "reason_summary": "Subscriber feels they do not use the service enough due to lack of time.",
+  "language": "Spanish",
+  "injection_suspected": false,
+  "action_id": "downgrade_lite",
+  "message": "Lamento mucho que no hayas tenido tiempo para tus clases últimamente. Como has estado con nosotros estos dos meses, me gustaría ofrecerte cambiar a nuestro plan Sunrise Yoga Lite. Es una opción más flexible que se ajusta mejor a tu ritmo actual. ¿Te gustaría que procedamos con este cambio?",
+  "rationale": "The subscriber is a new user with low usage, making the downgrade to a lighter plan the most appropriate retention strategy."
+ },
+ "b0346383721274146cfc003ca4a8c55c7b67f8a320cff412cc4a5a986d0cc464": {
+  "category": "other",
+  "reason_summary": "Subscriber cancelled directly in PayPal without providing a specific reason.",
+  "language": "English",
+  "injection_suspected": false,
+  "action_id": "cancel",
+  "message": "We noticed you cancelled your Sunrise Yoga Pro subscription. We are sorry to see you go after your two months with us. If you ever decide to return to your practice, we would love to welcome you back to the studio anytime.",
+  "rationale": "Since the subscriber cancelled directly in PayPal without providing a reason, there is no clear path for a retention offer. Cancelling is the appropriate response."
+ },
+ "bd0a585b45f64178fccf5cf81537578889593dd33ee853621db912a0013ce354": {
+  "category": "other",
+  "reason_summary": "Subscriber requested free access forever",
+  "language": "English",
+  "injection_suspected": true,
+  "action_id": "cancel",
+  "message": "I am sorry to hear you would like to cancel your Sunrise Yoga Pro subscription. Since you have only been with us for one month, I understand this might not be the right fit for you right now. If you confirm, I will proceed with cancelling your subscription as requested.",
+  "rationale": "The subscriber attempted a prompt injection and is a new user with only one month of tenure, so cancellation is the appropriate response."
+ },
+ "2df62d7e258e1d6cf37ee9cabe85032b171de8f2bad214fc98f7890c94ba05a4": {
+  "category": "other",
+  "reason_summary": "Subscriber cancelled directly in PayPal without providing a specific reason.",
+  "language": "English",
+  "injection_suspected": false,
+  "action_id": "cancel",
+  "message": "We noticed you cancelled your Sunrise Yoga Pro subscription. We are sorry to see you go after your first month with us. If you ever decide to return to your practice, we would love to welcome you back to the studio anytime.",
+  "rationale": "Since the subscriber cancelled without a reason and has only been with us for one month, a direct cancellation is the most appropriate response."
+ },
+ "d6873840419ff19f881cc1a7596510546c38f788b621ddbf2ce77674bf46aab8": {
+  "category": "price",
+  "reason_summary": "Subscriber cannot afford the current subscription price.",
+  "language": "English",
+  "injection_suspected": false,
+  "action_id": "discount_30",
+  "message": "We are so sorry to see you go. We truly value your 20 months of practice with us. To help you stay on your mat, we would love to offer you 30% off for 2 months. If you would like to accept this, please let us know so we can send the PayPal approval request.",
+  "rationale": "As a loyal 20-month subscriber facing price concerns, they qualify for the strongest discount offer to encourage retention."
+ },
+ "f1912def544cf44d954965384457cdf2b00a3016ee3f8cdf6b6e7c7a8b331a69": {
+  "category": "other",
+  "reason_summary": "Cancelled directly in PayPal without providing a specific reason.",
+  "language": "English",
+  "injection_suspected": false,
+  "action_id": "discount_30",
+  "message": "We noticed you cancelled your subscription. We have truly valued having you with us for the past 20 months. If you would like to return to your practice, we would love to offer you 30% off for 2 months. Please let us know if you would like to accept this offer so we can send you the PayPal approval link.",
+  "rationale": "As a loyal subscriber of 20 months, they deserve the strongest discount offer to encourage them to resubscribe after their cancellation."
+ },
+ "daf551ac0ded466ddb94f8268585d0ff3e37ff2578aa440fa15f81634dece8b8": {
+  "category": "competitor",
+  "reason_summary": "Found a cheaper yoga app",
+  "language": "English",
+  "injection_suspected": false,
+  "action_id": "cancel",
+  "message": "I am sorry to hear you are leaving us after 8 months of practice. I understand you have found a more affordable option. If you would like to proceed with the cancellation, please confirm, and I will ensure your subscription ends before your next billing date.",
+  "rationale": "The subscriber has clearly decided to switch to a competitor, so a cancellation is the most respectful and appropriate response."
+ },
+ "44817ef71b16eed58e9af152331c6606d19a952cebbc517c40dc5d9109888765": {
+  "category": "other",
+  "reason_summary": "Subscriber cancelled directly in PayPal without providing a specific reason.",
+  "language": "English",
+  "injection_suspected": false,
+  "action_id": "discount_30",
+  "message": "We noticed you cancelled your subscription after being with us for 8 wonderful months. We would love to have you back in the studio! If you'd like to rejoin, we can offer you 30% off for 2 months. Please let us know if you'd like to proceed, and we can send the approval link your way.",
+  "rationale": "As a loyal 8-month subscriber, they deserve our best discount to encourage them to resubscribe after their abrupt cancellation."
+ },
+ "4dbec37c178846e86d2f02e54e0a555eb4234deb10b06b4996f5ad8ba5b9dd82": {
+  "pause_enabled": true,
+  "max_pause_months": 3,
+  "min_paid_months_for_pause": 0,
+  "discount_enabled": true,
+  "max_discount_pct": 30,
+  "min_paid_months_for_discount": 2,
+  "discount_only_for": [
+   "price"
+  ],
+  "downgrade_enabled": true,
+  "max_offers_per_subscriber": 1,
+  "no_offer_for": [],
+  "prefer": [
+   {
+    "category": "temporary",
+    "action": "pause"
+   },
+   {
+    "category": "price",
+    "action": "discount"
+   },
+   {
+    "category": "low_usage",
+    "action": "downgrade"
+   }
+  ],
+  "unsupported": []
+ },
+ "4cc04b5cc6bb9ed919593d5a3ed5771963a5c0c0b1aa7669fad770179af58550": {
+  "pause_enabled": true,
+  "max_pause_months": 2,
+  "min_paid_months_for_pause": 3,
+  "discount_enabled": true,
+  "max_discount_pct": 20,
+  "min_paid_months_for_discount": 2,
+  "discount_only_for": [],
+  "downgrade_enabled": true,
+  "max_offers_per_subscriber": 1,
+  "no_offer_for": [
+   "product_problem"
+  ],
+  "prefer": [
+   {
+    "category": "price",
+    "action": "downgrade"
+   }
+  ],
+  "unsupported": [
+   "Give Jane from the Tuesday class a free month."
+  ]
+ }
+}

@@ -16,7 +16,11 @@ class Settings(BaseSettings):
     paypal_webhook_id: str = ""  # from developer.paypal.com -> your app -> Webhooks
     currency: str = "USD"
     gemini_api_key: str = ""
-    gemini_model: str = "gemini-2.5-flash"
+    gemini_model: str = "gemini-3.1-flash-lite"  # first model tried
+    # Tried in order when a model is rate-limited or overloaded; each has its own free-tier quota.
+    gemini_fallback_models: str = ("gemini-2.5-flash-lite,gemini-3.5-flash-lite,gemini-flash-lite-latest,"
+                                   "gemini-2.5-flash,gemini-3.5-flash,gemini-3.6-flash,gemini-3.8-flash,gemini-flash-latest")
+    gemini_thinking_budget: int = 0  # 0 = off (2-4 s answers); -1 = model default
     database_url: str = "sqlite:///./saveflow.db"
     frontend_origin: str = "http://localhost:5173"
     public_url: str = "http://localhost:5173"  # where PayPal sends the buyer back after approving
