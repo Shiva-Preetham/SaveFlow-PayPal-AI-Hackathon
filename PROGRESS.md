@@ -12,7 +12,14 @@ The full app is built and pushed to GitHub. It runs locally end to end. Three th
 | 3 | ~~Record the demo video~~ | Done Nov 5: `submission/saveflow-demo.mp4` (2:16, 1080p, captions). Voice: Piper neural TTS, `en_US-ljspeech-high` (public-domain training data). Recorded on the live site, including a real PayPal `suspend`. Rebuild with `tools/demo-video/`. | ✅ |
 | 4 | ~~Upload the video to YouTube~~ | Public: https://youtu.be/_eDtsG07IjE (Nov 5) | ✅ |
 | 5 | ~~Submit on Devpost~~ | **Submitted Nov 6, 2026**: https://devpost.com/software/saveflow (editable until Nov 12, 3:00 PM EST). | ✅ |
-| 6 | **Before judging (Dec 1–15): keep the demo awake** | Set a free uptime monitor (UptimeRobot / cron-job.org) to open `https://saveflow-ufbx.onrender.com/api/health` every 10 min from Dec 1 to Dec 15, then turn it off. Don't run the eval or cache warmer then (Gemini quota). | 10 min |
+| 6 | **Keep everything working until Dec 21** | Organisers (Nov 6 update): keep the demo, test credentials and any trials/credits active until winners are announced on **Dec 21**. Keep the Render service, the PayPal sandbox app + buyer login, and the Gemini key. Set a free uptime monitor on `https://saveflow-ufbx.onrender.com/api/health` every 10 min from Dec 1 to Dec 21. Don't run the eval or cache warmer then (Gemini quota). | 10 min |
+| 7 | **No edits after the deadline** | Organisers: *“After the deadline, submissions are locked. Don't edit your repo, video, or linked materials until after the winner announement.”* Any repo change (even docs) must be pushed **before Nov 12, 12:00 PM PST** (Nov 13, 1:30 AM IST); after that, no pushes, no video changes until Dec 21. | — |
+
+### Judging (from the organisers' updates)
+- **Stage One (eligibility):** working build, public repo with an open-source licence, public video under 3 minutes, meaningful use of PayPal and AI. SaveFlow meets all four. Submitted Nov 6, inside the “submit today to still get an early eligibility check” window; watch your Devpost email for any flagged fixes.
+- **Stage Two:** judges score 1–5 on Technological Implementation, Design, Potential Impact, Innovation/Idea, and Presentation. **Judges aren't required to run the project, so the video carries a lot of weight.** An AI voiceover is explicitly fine.
+- Eligibility: above the age of majority in your country; all countries except Devpost's standard exceptions (India is not excluded).
+- Dates (IST): submissions close Nov 13, 1:30 AM; judging Dec 2, 3:30 AM – Dec 15, 9:30 PM; winners Dec 21, 10:30 PM.
 
 Remaining for you: run the live PayPal path once (below), deploy, video, submit. **Also add the Gemini key on Render** (`GEMINI_API_KEY`).
 
