@@ -1,0 +1,24 @@
+# Render Blueprint: New > Blueprint > pick this repo. Secrets are entered in the Render dashboard, never committed.
+services:
+  - type: web
+    name: saveflow
+    runtime: docker
+    plan: free
+    healthCheckPath: /api/health
+    envVars:
+      - key: PAYPAL_CLIENT_ID
+        sync: false
+      - key: PAYPAL_CLIENT_SECRET
+        sync: false
+      - key: PAYPAL_WEBHOOK_ID
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEMINI_MODEL
+        value: gemini-2.5-flash
+      - key: PUBLIC_URL          # e.g. https://saveflow.onrender.com (where PayPal returns the buyer)
+        sync: false
+      - key: FRONTEND_ORIGIN     # same as PUBLIC_URL
+        sync: false
+      - key: DEMO_MODE
+        value: "true"

@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 
 from app.agent import llm
 from app.agent.fallback import classify as keyword_classify
-from app.policy.engine import Action, PlanInfo, SubscriberContext, allowed_actions, enforce
+from app.policy.engine import Action, PlanInfo, SubscriberContext, allowed_actions, enforce, months
 from app.policy.rules import CATEGORY_LABELS, Category, PolicyRules
 
 SYSTEM = """You are the retention agent for Sunrise Yoga Studio, a small business that bills monthly through \
@@ -74,9 +74,9 @@ def history_facts(ctx: SubscriberContext, catalogue: dict[str, PlanInfo], extra:
 def template_message(action: Action, months_paid: int) -> str:
     loyal = f"Thank you for {months_paid} months with us. " if months_paid >= 3 else ""
     return {
-        "pause": f"{loyal}If you need a break, we can pause your membership for {action.months} month(s) — "
+        "pause": f"{loyal}If you need a break, we can pause your membership for {months(action.months)} — "
                  "no charges while paused, and everything is here when you're back.",
-        "discount": f"{loyal}We'd love to keep you: here's {action.pct}% off for the next {action.months} months, "
+        "discount": f"{loyal}We'd love to keep you: here's {action.pct}% off for the next {months(action.months)}, "
                     "then your usual price.",
         "downgrade": f"{loyal}If the full plan is more than you need, you can switch to a lighter plan "
                      "at a lower price instead.",

@@ -47,7 +47,7 @@ def summarize(rules: PolicyRules) -> list[str]:
     lines = []
     if rules.pause_enabled:
         cond = f" after {rules.min_paid_months_for_pause} paid months" if rules.min_paid_months_for_pause else ""
-        lines.append(f"Pause: up to {rules.max_pause_months} month(s){cond}.")
+        lines.append(f"Pause: up to {rules.max_pause_months} month{'' if rules.max_pause_months == 1 else 's'}{cond}.")
     else:
         lines.append("Pause: never offered.")
     if rules.discount_enabled and rules.max_discount_pct > 0:
@@ -58,7 +58,7 @@ def summarize(rules: PolicyRules) -> list[str]:
     else:
         lines.append("Discount: never offered.")
     lines.append("Cheaper plan: allowed." if rules.downgrade_enabled else "Cheaper plan: never offered.")
-    lines.append(f"At most {rules.max_offers_per_subscriber} offer(s) per subscriber, ever."
+    lines.append(f"At most {rules.max_offers_per_subscriber} offer{'' if rules.max_offers_per_subscriber == 1 else 's'} per subscriber, ever."
                  if rules.max_offers_per_subscriber else "No offers at all: every cancel goes straight through.")
     if rules.no_offer_for:
         lines.append("No offer (clean cancel) when the reason is: "

@@ -104,6 +104,8 @@ scripts/
 - **Suspend/activate need no buyer approval**, so pause is the lowest-friction offer. Discount and plan-switch offers send the subscriber to PayPal to approve, so some will drop off there.
 
 ## Open questions
+- Build status, verification steps and remaining owner actions live in `PROGRESS.md`; keep it updated.
+- Discount plans use a TRIAL cycle at the discounted price (PayPal accepts creating them). Unverified: does `revise` onto such a plan apply the trial price to an existing subscription?
 - When is the new price first billed after a plan switch: immediately, or from the next cycle?
 - Can a failed renewal payment be simulated in sandbox? (Ask in the PayPal Discord if needed: https://discord.gg/sJ2G6DyvSK)
 

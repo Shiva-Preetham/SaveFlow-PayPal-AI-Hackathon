@@ -39,6 +39,10 @@ class Action:
         return asdict(self)
 
 
+def months(n: int) -> str:
+    return f"{n} month{'' if n == 1 else 's'}"
+
+
 CANCEL = Action(id="cancel", type="cancel", label="No offer: cancel the subscription")
 
 
@@ -63,7 +67,7 @@ def allowed_actions(rules: PolicyRules, ctx: SubscriberContext, catalogue: dict[
 
     if rules.pause_enabled and ctx.months_paid >= rules.min_paid_months_for_pause:
         for m in range(1, rules.max_pause_months + 1):
-            actions.append(Action(id=f"pause_{m}", type="pause", label=f"Pause for {m} month(s)", months=m,
+            actions.append(Action(id=f"pause_{m}", type="pause", label=f"Pause for {months(m)}", months=m,
                                   revenue_kept_12m=round((12 - m) * price, 2)))
 
     discount_ok = (rules.discount_enabled and ctx.months_paid >= rules.min_paid_months_for_discount
@@ -73,7 +77,7 @@ def allowed_actions(rules: PolicyRules, ctx: SubscriberContext, catalogue: dict[
             if p.base_key == current.key and 0 < p.discount_pct <= rules.max_discount_pct:
                 kept = p.discount_months * p.price + (12 - p.discount_months) * price
                 actions.append(Action(id=f"discount_{p.discount_pct}", type="discount",
-                                      label=f"{p.discount_pct}% off for {p.discount_months} months",
+                                      label=f"{p.discount_pct}% off for {months(p.discount_months)}",
                                       pct=p.discount_pct, months=p.discount_months, plan_key=p.key,
                                       needs_buyer_approval=True, revenue_kept_12m=round(kept, 2)))
 

@@ -20,6 +20,7 @@ T = TypeVar("T", bound=BaseModel)
 DEMO_CACHE_FILE = Path(__file__).with_name("demo_cache.json")
 _demo_cache: dict[str, dict] | None = None
 _client = None
+capture: dict[str, dict] | None = None  # set by warm_cache to record fresh answers for the committed demo cache
 
 
 class LlmUnavailable(Exception):
@@ -79,6 +80,8 @@ def generate(system: str, prompt: str, schema: type[T], db: Session | None = Non
     if not get_settings().gemini_configured:
         raise LlmUnavailable("GEMINI_API_KEY is not set")
     out = _call_gemini(system, prompt, schema)
+    if capture is not None:
+        capture[key] = out.model_dump(mode="json")
     if db is not None:
         db.merge(LlmCache(key=key, response=out.model_dump(mode="json")))
     return out, "gemini"
