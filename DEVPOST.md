@@ -1,6 +1,16 @@
 # Devpost submission kit
 
-Copy each section into the Devpost form. Replace the `_…_` placeholders. Keep the video under 3:00.
+## Final checklist (the only steps that need your accounts)
+1. **YouTube:** upload `submission/saveflow-demo.mp4` (or your own recording). Title: *SaveFlow: the save-the-subscriber layer for PayPal Subscriptions*. Visibility: **Public** or **Unlisted** (both work for Devpost). Copy the link.
+2. **Devpost:** open the hackathon page → *Enter a submission* / *Edit submission* → paste each section below into the matching field.
+   - Repo: https://github.com/Shiva-Preetham/SaveFlow-PayPal-AI-Hackathon (public, MIT license visible)
+   - Live demo: https://saveflow-ufbx.onrender.com
+   - Video: your YouTube link
+   - Select the **Best Use of AG Grid** sponsor prize and the grand prize category.
+3. Open the live demo once just before submitting so it is awake, and check the README shows the sandbox buyer login.
+4. Click **Submit** (not just *Save draft*) and confirm Devpost shows the project as submitted. Deadline: **Nov 12, 12:00 PM PST = Nov 13, 1:30 AM IST**.
+
+Copy each section into the Devpost form. Keep the video under 3:00.
 
 ---
 

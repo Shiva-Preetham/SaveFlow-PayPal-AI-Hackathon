@@ -119,7 +119,9 @@ def register_live(body: LiveSubscriberIn, db: Session = Depends(get_db)) -> dict
     if plan is None:
         raise HTTPException(400, "That subscription is not for one of this merchant's plans")
     merchant_id = db.scalar(select(Policy.merchant_id).where(Policy.status == "active"))
-    sub = Subscriber(merchant_id=merchant_id, name=body.name, plan_key=plan.key, is_live=True,
+    # Several judges may subscribe; the id suffix tells their live subscribers apart.
+    sub = Subscriber(merchant_id=merchant_id, name=f"{body.name} …{body.subscription_id[-4:]}", plan_key=plan.key,
+                     is_live=True,
                      paypal_subscription_id=body.subscription_id,
                      persona="Live sandbox subscription: offers here call the real PayPal API.")
     db.add(sub)

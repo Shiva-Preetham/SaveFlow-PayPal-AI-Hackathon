@@ -4,7 +4,7 @@ import logging
 import re
 from datetime import datetime, timedelta, timezone
 
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 
 from app.agent.decider import decide, template_message
@@ -12,7 +12,7 @@ from app.config import get_settings
 from app.models import AuditLog, CancelAttempt, Policy, Subscriber, SubscriptionState as S, utcnow
 from app.paypal import subscriptions as pp_subs
 from app.paypal.client import PayPalError
-from app.policy.engine import CANCEL, Action, SubscriberContext
+from app.policy.engine import CANCEL, Action, SubscriberContext, months
 from app.policy.rules import PolicyRules
 from app.services import catalogue as cat
 from app.services.state import reconcile, transition
@@ -154,7 +154,7 @@ def accept(db: Session, attempt: CancelAttempt, calls: list) -> CancelAttempt:
     if action.type == "pause":
         if _live(sub):
             pp_subs.suspend(cat.paypal(), sub.paypal_subscription_id,
-                            f"Paused {action.months} month(s) via SaveFlow", key, record=calls)
+                            f"Paused {months(action.months)} via SaveFlow", key, record=calls)
         else:
             _simulated(calls, "POST", f"/v1/billing/subscriptions/{sub.paypal_subscription_id}/suspend")
         transition(sub, S.SUSPENDED)
@@ -215,7 +215,6 @@ def confirm_approval(db: Session, attempt: CancelAttempt) -> CancelAttempt:
     target = cat.plan(db, action.plan_key or "")
     sid = attempt.context.get("new_subscription_id") or sub.paypal_subscription_id
     details = pp_subs.get(cat.paypal(), sid, record=calls)
-    attempt.paypal_calls = calls
     if attempt.channel == "win_back":
         ok = details.get("status") in ("ACTIVE", "APPROVED")
         if ok:
@@ -224,11 +223,24 @@ def confirm_approval(db: Session, attempt: CancelAttempt) -> CancelAttempt:
         ok = target is not None and details.get("plan_id") == target.paypal_plan_id
         if ok:
             sub.plan_key = target.key
-    if ok:
-        _saved(attempt, action)
-        audit(db, "approval_confirmed", {"paypal_status": details.get("status"),
-                                         "plan_id": details.get("plan_id")}, sub.id, attempt.id)
+    attempt.paypal_calls = calls
+    if not ok:
+        db.commit()
+        return attempt
+    # The approval popup and the page's polling can confirm at the same moment: only the request
+    # that flips awaiting_approval -> saved applies the change, so it happens exactly once.
+    won = db.execute(update(CancelAttempt)
+                     .where(CancelAttempt.id == attempt.id, CancelAttempt.outcome == "awaiting_approval")
+                     .values(outcome="saved", revenue_kept_12m=action.revenue_kept_12m, decided_at=utcnow(),
+                             paypal_calls=calls)).rowcount
+    if not won:
+        db.rollback()
+        db.refresh(attempt)
+        return attempt
+    audit(db, "approval_confirmed", {"paypal_status": details.get("status"), "plan_id": details.get("plan_id")},
+          sub.id, attempt.id)
     db.commit()
+    db.refresh(attempt)
     return attempt
 
 

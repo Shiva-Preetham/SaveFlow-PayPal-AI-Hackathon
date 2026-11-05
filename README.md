@@ -29,7 +29,14 @@ Stripe offers retention flows at cancellation; PayPal Subscriptions does not, an
 4. **Policy** → *Try an example* → *Compile with AI* → note the unsupported-rule warning → *Test on past cancellations first*.
 5. **Win-backs** → send a CANCELLED webhook, then re-send the same event to see duplicate handling.
 
-**Sandbox buyer for judges:** _add the US sandbox Personal account email and password here_ (sandbox only; it cannot spend real money).
+**Sandbox buyer for judges** (PayPal sandbox only; it holds test funds and cannot spend real money):
+
+| | |
+|---|---|
+| Email | `sb-eukrx53568501@personal.example.com` |
+| Password | `8nFw@tJW` |
+
+Use it in the PayPal popup that opens from the **Subscribe** button on *Try it as a subscriber*. If the login ever stops working, use the simulated demo subscribers; every flow works there with PayPal calls labelled “simulated”.
 
 ## Run locally
 Requirements: Python 3.11, Node 20+, a PayPal developer account and a free Gemini API key (https://aistudio.google.com/apikey).

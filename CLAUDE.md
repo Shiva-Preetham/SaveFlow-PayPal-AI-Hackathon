@@ -106,7 +106,7 @@ scripts/
 ## Open questions
 - Build status, verification steps and remaining owner actions live in `PROGRESS.md`; keep it updated.
 - Discount plans use a TRIAL cycle at the discounted price (PayPal accepts creating them). Unverified: does `revise` onto such a plan apply the trial price to an existing subscription?
-- When is the new price first billed after a plan switch: immediately, or from the next cycle?
+- ~~When is the new price first billed after a plan switch?~~ Answered Nov 5 (live test): after the buyer approves, `plan_id` changes immediately and the new plan's price is charged from the next billing date; the current paid month is unchanged.
 - Can a failed renewal payment be simulated in sandbox? (Ask in the PayPal Discord if needed: https://discord.gg/sJ2G6DyvSK)
 
 ## Known limits to state honestly in the pitch

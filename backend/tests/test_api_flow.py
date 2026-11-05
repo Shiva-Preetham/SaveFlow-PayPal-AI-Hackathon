@@ -115,3 +115,34 @@ def test_paypal_failure_is_recorded_with_debug_id(client, monkeypatch):
     assert detail["outcome"] == "offered" and detail["paypal_calls"][-1]["debug_id"] == "dbg-123"
     assert any(e["action"] == "paypal_call_failed" for e in detail["audit"])
     assert persona(client, "Maya")["state"] == "ACTIVE"
+
+
+def test_concurrent_approval_confirm_applies_once(client, monkeypatch):
+    """The approval popup and the page's polling can confirm at the same moment."""
+    from sqlalchemy import select
+    from app.db import SessionLocal
+    from app.models import AuditLog, CancelAttempt
+    from app.services import retention
+
+    lucia = persona(client, "Lucía")
+    a = client.post("/api/cancel", json={"subscriber_id": lucia["id"], "reason": "I barely use it"}).json()
+    with SessionLocal() as db:
+        row = db.get(CancelAttempt, a["id"])
+        row.outcome, row.action = "awaiting_approval", {**row.action, "type": "downgrade", "plan_key": "lite",
+                                                         "id": "downgrade_lite", "revenue_kept_12m": 60.0}
+        db.commit()
+    with SessionLocal() as db:
+        lite_id = retention.cat.plan(db, "lite").paypal_plan_id
+    monkeypatch.setattr(retention.cat, "paypal", lambda: object())
+    monkeypatch.setattr(retention.pp_subs, "get", lambda pp, sid, record=None: {"status": "ACTIVE", "plan_id": lite_id})
+
+    first, second = SessionLocal(), SessionLocal()
+    a1, a2 = first.get(CancelAttempt, a["id"]), second.get(CancelAttempt, a["id"])  # both still awaiting
+    retention.confirm_approval(first, a1)
+    retention.confirm_approval(second, a2)
+    assert a1.outcome == a2.outcome == "saved"
+    first.close(); second.close()
+    with SessionLocal() as db:
+        confirms = db.scalars(select(AuditLog).where(AuditLog.attempt_id == a["id"],
+                                                     AuditLog.action == "approval_confirmed")).all()
+    assert len(confirms) == 1

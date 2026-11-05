@@ -9,7 +9,7 @@ The full app is built and pushed to GitHub. It runs locally end to end. Three th
 |---|---|---|---|
 | 1 | ~~Put a real Gemini API key in `.env`~~ | Done Nov 5. Measured free-tier limit on `gemini-2.5-flash`: **5/min, 20/day**. So the agent now walks a chain of models (3.1 Flash-Lite → 2.5 Flash-Lite → 3.5 Flash-Lite → Flash-Lite latest → 2.5 Flash), each with its own quota. | ✅ |
 | 2 | ~~Deploy to Render~~ | Live at https://saveflow-ufbx.onrender.com (Nov 5). Verified: health, PayPal plans reused (no duplicates), cached + live Gemini answers. **Set `PUBLIC_URL` and `FRONTEND_ORIGIN` on Render to that URL** (check: `/api/health` shows `public_url`). | ✅ |
-| 3 | **Record the < 3 min video**, upload to YouTube, submit on Devpost | Required. Script and submission text are in `DEVPOST.md`. | 1 evening |
+| 3 | **Upload the video to YouTube and submit on Devpost** | Required. Follow the checklist at the top of `DEVPOST.md`. | 30 min |
 
 Remaining for you: run the live PayPal path once (below), deploy, video, submit. **Also add the Gemini key on Render** (`GEMINI_API_KEY`).
 
@@ -30,7 +30,7 @@ Legend: ✅ verified by tests or by running it · 🟡 built, needs your sandbox
 | PayPal client: OAuth cache, idempotency key on every call, timeout, debug_id in errors | ✅ | `tests/test_paypal_client.py`; a failed live call is kept on the attempt + audit log (`test_paypal_failure_is_recorded_with_debug_id`) |
 | PayPal catalogue: product + Pro, 20%/30%/50% discount plans (trial cycles), Lite; find-or-create (no duplicates) | ✅ | Ran twice against your sandbox: same 5 plan ids both times |
 | PayPal Subscribe button (JS SDK) on *Try it* | ✅ renders | Seen in the browser with your sandbox plan |
-| Live path: subscribe with sandbox buyer → cancel via SaveFlow → real `suspend` / `revise` popup / `cancel` | 🟡 | Needs you to log in as the US sandbox buyer once (see “Verify the live PayPal path”) |
+| Live path: subscribe with sandbox buyer → cancel via SaveFlow → real `suspend` / `revise` popup / `cancel` | ✅ | Nov 5 on the hosted site: PayPal shows the subscription `SUSPENDED` (“Paused 3 months via SaveFlow”); plan switch to Lite approved in the popup and confirmed by re-reading PayPal (plan_id = Lite, new price from next billing date). Discount plan on revise (trial price) still unverified. |
 | Webhooks: signature verification, dedupe by event id, reconcile from PayPal, win-back | ✅ / 🟡 | Simulated events tested (duplicate ignored). Real webhooks need a tunnel + `PAYPAL_WEBHOOK_ID`. |
 | State machine + scheduled resume after pause | ✅ | tests; “skip ahead” button in *Try it* |
 | AG Grid workspace: KPIs, reasons, views, quick search, saved layout, CSV export, row drawer with the agent's work | ✅ | Browser |
