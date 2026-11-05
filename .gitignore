@@ -14,3 +14,4 @@ day1_results.json
 .DS_Store
 *.tsbuildinfo
 .pytest_cache/
+submission/*.mp4

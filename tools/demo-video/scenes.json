@@ -1,0 +1,67 @@
+[
+ {
+  "id": "title",
+  "caption": "SaveFlow: the save-the-subscriber layer for PayPal Subscriptions.",
+  "speech": "Save Flow. The save the subscriber layer for PayPal Subscriptions."
+ },
+ {
+  "id": "workspace",
+  "caption": "Small businesses billing through PayPal Subscriptions lose subscribers with no chance to keep them. Other payment platforms offer a retention step at cancellation. PayPal doesn't. SaveFlow adds one: an AI agent that stays inside the merchant's rules.",
+  "speech": "Small businesses billing through PayPal Subscriptions lose subscribers with no chance to keep them. Other payment platforms offer a retention step at cancellation. PayPal doesn't. Save Flow adds one: an A I agent that stays inside the merchant's rules."
+ },
+ {
+  "id": "live_a",
+  "caption": "This is a real PayPal sandbox subscriber. They cancel and explain why in their own words. The agent reads their real PayPal history, and code computes which offers the merchant's policy allows. The AI picks one: a 3-month pause.",
+  "speech": "This is a real PayPal sandbox subscriber. They cancel, and explain why in their own words. The agent reads their real PayPal history, and code computes which offers the merchant's policy allows. The A I picks one: a three month pause."
+ },
+ {
+  "id": "live_b",
+  "caption": "One click, and SaveFlow calls PayPal's suspend API for real, with PayPal's debug ID logged. It resumes automatically when the pause ends.",
+  "speech": "One click, and Save Flow calls PayPal's suspend A P I for real, with PayPal's debug I D logged. It resumes automatically when the pause ends."
+ },
+ {
+  "id": "injection",
+  "caption": "What if someone tries to trick it? The injection is flagged, and the policy is enforced by code, not by the model: the AI can only choose from the allowed list.",
+  "speech": "What if someone tries to trick it? The injection is flagged, and the policy is enforced by code, not by the model. The A I can only choose from the allowed list."
+ },
+ {
+  "id": "hinglish_a",
+  "caption": "It replies in the subscriber's own language, here Hinglish.",
+  "speech": "It replies in the subscriber's own language. Here, Hinglish."
+ },
+ {
+  "id": "hinglish_b",
+  "caption": "It can negotiate once, but never past the merchant's limit: 50% asked, 30% offered.",
+  "speech": "It can negotiate once, but never past the merchant's limit. Fifty percent asked. Thirty offered."
+ },
+ {
+  "id": "policy",
+  "caption": "Merchants write their rules in plain English. Gemini turns them into structured rules, code validates them, and the merchant approves a summary written by code. A rule it can't enforce is flagged, not guessed.",
+  "speech": "Merchants write their rules in plain English. Gemini turns them into structured rules, code validates them, and the merchant approves a summary written by code. A rule it can't enforce is flagged, not guessed."
+ },
+ {
+  "id": "simulator",
+  "caption": "Before going live, the what-if simulator replays past cancellations against the new policy in AG Grid and shows which offers would change.",
+  "speech": "Before going live, the what if simulator replays past cancellations against the new policy in A G Grid, and shows which offers would change."
+ },
+ {
+  "id": "grid",
+  "caption": "The merchant works in an AG Grid workspace: views, search, saved layouts, CSV export. Click any row to see the agent's work: what it read, what was allowed, what it chose, and every PayPal call.",
+  "speech": "The merchant works in an A G Grid workspace, with views, search, saved layouts and C S V export. Click any row to see the agent's work: what it read, what was allowed, what it chose, and every PayPal call."
+ },
+ {
+  "id": "winback",
+  "caption": "If a subscriber cancels inside PayPal instead, the verified webhook triggers one come-back offer. A duplicate delivery is ignored.",
+  "speech": "If a subscriber cancels inside PayPal instead, the verified webhook triggers one come back offer. A duplicate delivery is ignored."
+ },
+ {
+  "id": "eval",
+  "caption": "50 test cases, including 10 attacks, all answered by Gemini: 0 policy violations, 92% reason accuracy, every injection flagged.",
+  "speech": "Fifty test cases, including ten attacks, all answered by Gemini. Zero policy violations. Ninety two percent reason accuracy. And every injection flagged."
+ },
+ {
+  "id": "end",
+  "caption": "SaveFlow: keep the subscribers you're about to lose.",
+  "speech": "Save Flow. Keep the subscribers you're about to lose."
+ }
+]
