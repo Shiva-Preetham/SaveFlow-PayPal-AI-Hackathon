@@ -11,7 +11,8 @@ The full app is built and pushed to GitHub. It runs locally end to end. Three th
 | 2 | ~~Deploy to Render~~ | Live at https://saveflow-ufbx.onrender.com (Nov 5). Verified: health, PayPal plans reused (no duplicates), cached + live Gemini answers. **Set `PUBLIC_URL` and `FRONTEND_ORIGIN` on Render to that URL** (check: `/api/health` shows `public_url`). | ✅ |
 | 3 | ~~Record the demo video~~ | Done Nov 5: `submission/saveflow-demo.mp4` (2:16, 1080p, captions). Voice: Piper neural TTS, `en_US-ljspeech-high` (public-domain training data). Recorded on the live site, including a real PayPal `suspend`. Rebuild with `tools/demo-video/`. | ✅ |
 | 4 | ~~Upload the video to YouTube~~ | Public: https://youtu.be/_eDtsG07IjE (Nov 5) | ✅ |
-| 5 | **Submit on Devpost** | Only you can do this. Steps 2–4 of the checklist at the top of `DEVPOST.md`. | 20 min |
+| 5 | ~~Submit on Devpost~~ | **Submitted Nov 6, 2026**: https://devpost.com/software/saveflow (editable until Nov 12, 3:00 PM EST). | ✅ |
+| 6 | **Before judging (Dec 1–15): keep the demo awake** | Set a free uptime monitor (UptimeRobot / cron-job.org) to open `https://saveflow-ufbx.onrender.com/api/health` every 10 min from Dec 1 to Dec 15, then turn it off. Don't run the eval or cache warmer then (Gemini quota). | 10 min |
 
 Remaining for you: run the live PayPal path once (below), deploy, video, submit. **Also add the Gemini key on Render** (`GEMINI_API_KEY`).
 
