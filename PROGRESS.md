@@ -8,7 +8,7 @@ The full app is built and pushed to GitHub. It runs locally end to end. Three th
 | # | What | Why it matters | Time |
 |---|---|---|---|
 | 1 | ~~Put a real Gemini API key in `.env`~~ | Done Nov 5. Measured free-tier limit on `gemini-2.5-flash`: **5/min, 20/day**. So the agent now walks a chain of models (3.1 Flash-Lite → 2.5 Flash-Lite → 3.5 Flash-Lite → Flash-Lite latest → 2.5 Flash), each with its own quota. | ✅ |
-| 2 | **Deploy to Render** and add the URL to the README | Judges use the hosted URL. | 20 min |
+| 2 | ~~Deploy to Render~~ | Live at https://saveflow-ufbx.onrender.com (Nov 5). Verified: health, PayPal plans reused (no duplicates), cached + live Gemini answers. **Set `PUBLIC_URL` and `FRONTEND_ORIGIN` on Render to that URL** (check: `/api/health` shows `public_url`). | ✅ |
 | 3 | **Record the < 3 min video**, upload to YouTube, submit on Devpost | Required. Script and submission text are in `DEVPOST.md`. | 1 evening |
 
 Remaining for you: run the live PayPal path once (below), deploy, video, submit. **Also add the Gemini key on Render** (`GEMINI_API_KEY`).
@@ -39,7 +39,7 @@ Legend: ✅ verified by tests or by running it · 🟡 built, needs your sandbox
 | Demo data: 72 seeded attempts, ~14% save rate, labelled | ✅ | Workspace banner |
 | Demo cache: Gemini answers for the 6 scripted personas, their win-backs and 2 policy compiles | ✅ | Served in 0.0–0.1 s with no quota used; regenerate with `python -m app.agent.warm_cache` only if prompts change |
 | 50-case eval (40 normal incl. Hinglish/Spanish/sarcasm, 10 adversarial) | ✅ | All 50 by Gemini: **0 violations**, 92% category accuracy, 50/50 offer fit, 10/10 injections flagged, 0 false flags (`backend/tests/eval/RESULTS.md`). Keyword baseline: 70%. |
-| Dockerfile + `render.yaml` (one service serves API + built frontend) | 🟡 | Not test-built: Docker isn't installed on this PC. `npm run build` and serving `frontend/dist` from FastAPI were verified locally. |
+| Dockerfile + `render.yaml` (one service serves API + built frontend) | ✅ | Built and deployed on Render in 55 s; live at https://saveflow-ufbx.onrender.com |
 | Learning loop (Thompson sampling) | ⬜ | Stretch, cut per plan. |
 | Failed-payment recovery | ⬜ | Cut per plan. |
 

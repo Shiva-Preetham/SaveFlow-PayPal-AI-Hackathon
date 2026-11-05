@@ -6,7 +6,7 @@ When a subscriber tries to cancel, SaveFlow reads their reason (in their own wor
 
 > Everything runs against the **PayPal sandbox**. No real money moves. “Sunrise Yoga Studio” is a made-up merchant.
 
-**Live demo:** _add your Render URL here_ (free tier: the first load can take 30–60 s while the server wakes up).
+**Live demo:** https://saveflow-ufbx.onrender.com (Render free tier: if it has been idle, the first load takes 30–60 s while the server wakes up).
 
 ## Why
 Stripe offers retention flows at cancellation; PayPal Subscriptions does not, and popular retention tools don't support PayPal. Small merchants billing through PayPal lose subscribers they could have kept. Industry data puts cancel-flow saves at roughly **15% of attempts**, so the value is real but not magic.

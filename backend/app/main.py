@@ -89,7 +89,7 @@ async def unexpected_handler(request: Request, exc: Exception) -> JSONResponse:
 def health() -> dict:
     s = get_settings()
     return {"status": "ok", "paypal_configured": s.paypal_configured, "gemini_configured": s.gemini_configured,
-            "paypal_catalogue": STATUS["paypal_catalogue"]}
+            "paypal_catalogue": STATUS["paypal_catalogue"], "public_url": s.public_url}
 
 
 if FRONTEND_DIST.exists():  # production: one service serves the built React app too

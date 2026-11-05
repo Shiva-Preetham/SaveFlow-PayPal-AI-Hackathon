@@ -57,7 +57,7 @@ python, fastapi, sqlalchemy, sqlite, google-gemini, pydantic, paypal-subscriptio
 
 ## Links
 - Repo: https://github.com/Shiva-Preetham/SaveFlow-PayPal-AI-Hackathon
-- Live demo: _Render URL_
+- Live demo: https://saveflow-ufbx.onrender.com
 - Video: _YouTube URL_
 - Sandbox buyer for judges: in the README
 
