@@ -13,14 +13,20 @@ class Settings(BaseSettings):
     paypal_client_id: str = ""
     paypal_client_secret: str = ""
     paypal_base_url: str = "https://api-m.sandbox.paypal.com"
+    paypal_webhook_id: str = ""  # from developer.paypal.com -> your app -> Webhooks
     currency: str = "USD"
     gemini_api_key: str = ""
+    gemini_model: str = "gemini-2.5-flash"
     database_url: str = "sqlite:///./saveflow.db"
     frontend_origin: str = "http://localhost:5173"
+    public_url: str = "http://localhost:5173"  # where PayPal sends the buyer back after approving
+    demo_mode: bool = True  # allows the "simulate webhook" button; real webhooks are always verified
+    sync_catalogue_on_start: bool = True
 
     @property
     def paypal_configured(self) -> bool:
-        return bool(self.paypal_client_id and self.paypal_client_secret)
+        return bool(self.paypal_client_id and self.paypal_client_secret) and \
+            not self.paypal_client_id.startswith("paste_")
 
     @property
     def gemini_configured(self) -> bool:

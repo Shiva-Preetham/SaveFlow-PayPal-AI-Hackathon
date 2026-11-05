@@ -42,18 +42,27 @@ class PayPalClient:
         return self._token
 
     def call(self, method: str, path: str, body: dict | None = None,
-             idempotency_key: str | None = None, params: dict | None = None) -> dict:
-        """Pass a stable idempotency_key when retrying the same logical action."""
+             idempotency_key: str | None = None, params: dict | None = None,
+             record: list[dict] | None = None) -> dict:
+        """Pass a stable idempotency_key when retrying the same logical action. If `record` is given,
+        a summary of the call is appended to it (for the audit log's "show its work")."""
+        key = idempotency_key or str(uuid.uuid4())
         headers = {
             "Authorization": f"Bearer {self._get_token()}",
-            "PayPal-Request-ID": idempotency_key or str(uuid.uuid4()),
+            "PayPal-Request-ID": key,
             "Prefer": "return=representation",
         }
         r = self._http.request(method, path, json=body, headers=headers, params=params)
+        entry = {"method": method, "path": path, "status": r.status_code, "idempotency_key": key,
+                 "at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}
         if r.status_code >= 400:
             err = self._error(r)
             log.error("PayPal call failed: %s %s -> %s", method, path, err)
+            if record is not None:
+                record.append({**entry, "debug_id": err.debug_id, "error": err.name})
             raise err
+        if record is not None:
+            record.append({**entry, "debug_id": r.headers.get("paypal-debug-id")})
         return r.json() if r.content else {}
 
     @staticmethod
